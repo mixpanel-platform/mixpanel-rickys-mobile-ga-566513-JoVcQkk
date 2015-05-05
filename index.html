@@ -15,6 +15,8 @@
     <br>
     <div id="datePicker"></div>
     <br><br>
+    <div id="dataLineChart"></div>
+		<br><br>
     <div id="dataTable"></div>
     
     <script>
@@ -33,6 +35,7 @@
 			var toDate = today //dateSelector.val().to
 			
 			var mpTable = $('#dataTable').MPTable({firstColHeader: "Month"});
+			var mpChart = $('#dataLineChart').MPChart({chartType: 'line'})
 
       var sort_object = function(map) {
 			    var keys = _.sortBy(_.keys(map), function(a) { return a; });
@@ -46,6 +49,7 @@
 			function createGraph() {
 				var promises = []
 				var tableData = {}
+				var lineChartData = {"K-Factor": {}}
 
 				var totalPromise = new Promise(function(resolve, reject) {
 				// 	MP.api.segment('Invite Sent', 'Number of Invites', {type: 'general', unit: 'month', from: fromDate, to: toDate, method: 'sum'}).done(function(results) {
@@ -89,9 +93,15 @@
 						var kScore = avgSent * conversion
 						// console.log(kScore)
 
+            if (isNaN(kScore)) {
+							kScore = 0
+						}
+						lineChartData["K-Factor"][dates[i]] = kScore
+
 						tableData[dates[i]] = {"Invites Per Customer": avgSent.toFixed(2), "Total Sent": Math.round(totalSent_Calc), "Total Accepted": totalAccepted_Calc, "~K-Factor Score": kScore.toFixed(4)}
 
-						mpTable.MPTable('setData', sort_object(tableData))
+						mpTable.MPTable('setData', sort_object(tableData));
+						mpChart.MPChart('setData', lineChartData);
 					}
 				});
 			}
